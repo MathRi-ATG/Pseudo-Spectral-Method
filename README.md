@@ -2,9 +2,9 @@
 ## Gatenby and Gawlinski Model Solution Applying the Spectral Method
 This notebook demonstrates a spectral collocation method (Chebyshev) to solve a 1D radially symmetric version of the **Gatenby-Gawlinski tumor invasion model**. The model describes interactions between:
 
- Normal cells $ N_n(r, t) $
- Tumor cells $ N_t(r, t) $
- Excess hydrogen ion concentration (acidity) $ C_h(r, t) $
+ Normal cells $N_n(r, t)$
+ Tumor cells $N_t(r, t)$
+ Excess hydrogen ion concentration (acidity) $C_h(r, t)$
 
 ## This Note Requires Further Work as the outputs are incorrect 
 ---
@@ -13,10 +13,9 @@ $$
 \frac{\partial N_n}{\partial t} = r_{n1} N_n \left( 1 - \frac{N_n}{K_n} \right) - r_{n2} C_h N_n,
 $$
 
+
 $$
-\frac{\partial N_t}{\partial t} = r_{t1} N_t \left( 1 - \frac{N_t}{K_t} \right)
-+ \frac{1}{r^2} \frac{\partial}{\partial r} \left[ r^2 D(N_n) \frac{\partial N_t}{\partial r} \right],
-\quad D(N_n) = D_t \left( 1 - \frac{N_n}{K_n} \right),
+\frac{\partial N_t}{\partial t} = r_t N_t \left(1 - \frac{N_t}{K_t}\right) + \frac{1}{r^2} \frac{\partial}{\partial r} \left( r^2 D(N_n) \frac{\partial N_t}{\partial r} \right), \quad \text{where} \quad D(N_n) = D_t \left(1 - \frac{N_n}{K_n} \right).
 $$
 
 $$
@@ -68,29 +67,37 @@ This matrix approximates the spatial derivative with respect to $r \in [0, R]$, 
 To impose **Neumann boundary conditions** (zero flux at boundaries), we modify the second derivative matrix:
 
 - Instead of using the standard Chebyshev second derivative matrix $D^{(2)}$, we replace its first and last rows with the first derivative matrix rows at the boundaries:
-  $$
-  D^{(2)}_{\text{bc}}[0, :] = D^{(1)}[0, :], \quad D^{(2)}_{\text{bc}}[-1, :] = D^{(1)}[-1, :]
-  $$
-  This enforces $\frac{\partial u}{\partial r} = 0$ at $r = 0$ and $r = R$, consistent with symmetry and no-flux conditions.
+
+$$
+D^{(2)}_{\text{bc}}[0, :] = D^{(1)}[0, :], \quad D^{(2)}_{\text{bc}}[-1, :] = D^{(1)}[-1, :]
+$$
+
+
+This enforces $\frac{\partial u}{\partial r} = 0$ at $r = 0$ and $r = R$, consistent with symmetry and no-flux conditions.
+
 
 ---
 
 We define smooth initial conditions using a **hyperbolic tangent profile** to smoothly transition between different densities across a radial threshold:
 
 - For normal cells $N_n(r, 0)$:
-  $$
-  N_n(r, 0) = \frac{5 \times 10^7}{2}(1 - \tanh(20(r - 0.1))) + \frac{10^8}{2}(1 + \tanh(20(r - 0.1)))
-  $$
+
+$$
+N_n(r, 0) = \frac{5 \times 10^7}{2} \left(1 - \tanh(20(r - 0.1))\right) + \frac{10^8}{2} \left(1 + \tanh(20(r - 0.1))\right)
+$$
 
 - For tumor cells $N_t(r, 0)$:
-  $$
-  N_t(r, 0) = \frac{10^5}{2}(1 - \tanh(20(r - 0.1))) + \frac{10^3}{2}(1 + \tanh(20(r - 0.1)))
-  $$
+
+$$
+N_t(r, 0) = \frac{10^5}{2} \left(1 - \tanh(20(r - 0.1))\right) + \frac{10^3}{2} \left(1 + \tanh(20(r - 0.1))\right)
+$$
 
 - For acid concentration $C_h(r, 0)$:
-  $$
-  C_h(r, 0) = \frac{10^{-9}}{2}(1 - \tanh(20(r - 0.1)))
-  $$
+
+$$
+C_h(r, 0) = \frac{10^{-9}}{2} \left(1 - \tanh(20(r - 0.1))\right)
+$$
+
 
 These functions represent an initially healthy tissue with a localized tumor and acid distribution centered around $r = 0.1$ cm. The smoothness of the $\tanh$ function avoids numerical instability and helps spectral methods converge rapidly.
 
@@ -105,19 +112,24 @@ We integrate the tumor model ODE system using SciPy’s `solve_ivp` function wit
 We define the simulation time range and the specific time points at which we want to record the solution:
 
 - The time span is:
-  $$
-  t_{\text{span}} = (0, 5.00256 \times 10^6) \quad \text{seconds}
-  $$
-  This corresponds to roughly:
-  $$
-  \frac{5.00256 \times 10^6}{86400} \approx 57.9 \text{ days}
-  $$
+
+$$
+t_{\text{span}} = (0,\, 5.00256 \times 10^6)\ \text{seconds}
+$$
+
+This corresponds to roughly:
+
+$$
+\frac{5.00256 \times 10^6}{86400} \approx 57.9\ \text{days}
+$$
 
 - Evaluation times:
-  $$
-  t_{\text{eval}} = \text{linspace}(0, 5.00256 \times 10^6, 6)
-  $$
-  This returns 6 equally spaced time points (including the start and end) for sampling the solution.
+
+$$
+t_{\text{eval}} = \text{linspace}(0,\, 5.00256 \times 10^6, 6)
+$$
+
+This returns 6 equally spaced time points (including the start and end) for sampling the solution.
 
 ## Modeling and Numerical Choices Justification
 
@@ -137,43 +149,23 @@ We approximate this term by applying the Chebyshev differentiation matrices in c
 
 ### 2. Boundary Conditions: Neumann (Zero Flux)
 
-We enforce homogeneous Neumann boundary conditions (zero flux) at \( r = 0 \) and \( r = R \). At \( r = 0 \), this condition also ensures symmetry for the radially symmetric problem.
+We enforce homogeneous Neumann boundary conditions (zero flux) at $r = 0$ and $r = R$.  
+At $r = 0$, this condition also ensures symmetry for the radially symmetric problem.
 
-This is done by replacing the first and last rows of the second derivative matrix \( D^{(2)} \) with the first derivative matrix \( D^{(1)} \), then approximating the zero-derivative condition:
+This is done by replacing the first and last rows of the second derivative matrix $D^{(2)}$  
+with the first derivative matrix $D^{(1)}$, then approximating the zero-derivative condition:
 
-$$
-\left. \frac{\partial u}{\partial r} \right|_{r=0} = 0, \quad \left. \frac{\partial u}{\partial r} \right|_{r=R} = 0
-$$
+$$\frac{\partial u}{\partial r} \Big|_{r=0} = 0, \quad \frac{\partial u}{\partial r} \Big|_{r=R} = 0$$
 
-### 3. Initial Conditions
-
-The initial profiles for $ N_n $, $ N_t $, and $ C_h $ are set using smooth hyperbolic tangent functions to mimic biological interfaces. These functions allow a soft transition between tumor and healthy tissue regions:
-
-- Normal cells:
-
-$$
-N_n(r) = \frac{5.0 \times 10^7 (1 - \tanh(20(r - 0.1)))}{2} + \frac{1.0 \times 10^8 (1 + \tanh(20(r - 0.1)))}{2}
-$$
-
-- Tumor cells:
-
-$$
-N_t(r) = \frac{1.0 \times 10^5 (1 - \tanh(20(r - 0.1)))}{2} + \frac{1.0 \times 10^3 (1 + \tanh(20(r - 0.1)))}{2}
-$$
-
-- Acid:
-
-$$
-C_h(r) = \frac{1.0 \times 10^{-9} (1 - \tanh(20(r - 0.1)))}{2}
-$$
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 | **Component**                    | **Complexity**             | **Explanation**                                                                 |
 |----------------------------------|-----------------------------|----------------------------------------------------------------------------------|
-| **Spatial Derivatives (Matrices)** | \( \mathcal{O}(N^2) \)      | Dense Chebyshev differentiation matrices of size \((N+1) \times (N+1)\)          |
-| **Nonlinear Term Evaluation**     | \( \mathcal{O}(N) \)        | Evaluated pointwise on the collocation grid                                     |
-| **Time Integration (BDF)**        | \( \mathcal{O}(kN^3) \)     | Implicit method requiring Jacobian evaluations and linear solves per step       |
-| **Total Computational Cost**      | \( \mathcal{O}(kN^3) \)     | Dominated by BDF time-stepping of coupled nonlinear PDEs                        |
-| **Memory (Space) Usage**          | \( \mathcal{O}(N^2) \)      | Due to storage of spectral differentiation matrices and intermediate arrays     |
+| **Spatial Derivatives (Matrices)** | ${O}(N^2)$                 | Dense Chebyshev differentiation matrices of size \((N+1) \times (N+1)\)          |
+| **Nonlinear Term Evaluation**      | ${O}(N)$                   | Evaluated pointwise on the collocation grid                                     |
+| **Time Integration (BDF)**         | ${O}(kN^3)$                | Implicit method requiring Jacobian evaluations and linear solves per step       |
+| **Total Computational Cost**       | ${O}(kN^3)$                | Dominated by BDF time-stepping of coupled nonlinear PDEs                        |
+| **Memory (Space) Usage**           | ${O}(N^2)$                 | Due to storage of spectral differentiation matrices and intermediate arrays     |
 
 > - \(N\): Number of spatial collocation points  
 > - \(k\): Number of time steps (depends on stiffness and solver tolerance)  
