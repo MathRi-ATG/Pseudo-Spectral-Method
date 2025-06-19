@@ -69,7 +69,7 @@ To impose **Neumann boundary conditions** (zero flux at boundaries), we modify t
 - Instead of using the standard Chebyshev second derivative matrix $D^{(2)}$, we replace its first and last rows with the first derivative matrix rows at the boundaries:
 
 $$
-D^{(2)}_{\text{bc}}[0, :] = D^{(1)}[0, :], \quad D^{(2)}_{\text{bc}}[-1, :] = D^{(1)}[-1, :]
+D_{bc}^{(2)}[0,:],\ \ D_{bc}^{(2)}[-1,:]=D^{(1)}[-1,:]
 $$
 
 
@@ -155,7 +155,7 @@ At $r = 0$, this condition also ensures symmetry for the radially symmetric prob
 This is done by replacing the first and last rows of the second derivative matrix $D^{(2)}$  
 with the first derivative matrix $D^{(1)}$, then approximating the zero-derivative condition:
 
-$$\frac{\partial u}{\partial r} \Big|_{r=0} = 0, \quad \frac{\partial u}{\partial r} \Big|_{r=R} = 0$$
+$D_{bc}^{(2)}[0,:],\ \ D_{bc}^{(2)}[-1,:]=D^{(1)}[-1,:]$
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
