@@ -2,9 +2,9 @@
 ## Gatenby and Gawlinski Model Solution Applying the Spectral Method
 This notebook demonstrates a spectral collocation method (Chebyshev) to solve a 1D radially symmetric version of the **Gatenby-Gawlinski tumor invasion model**. The model describes interactions between:
 
-- Normal cells $ N_n(r, t) $
-- Tumor cells $ N_t(r, t) $
-- Excess hydrogen ion concentration (acidity) $ C_h(r, t) $
+ Normal cells $ N_n(r, t) $
+ Tumor cells $ N_t(r, t) $
+ Excess hydrogen ion concentration (acidity) $ C_h(r, t) $
 
 ## This Note Requires Further Work as the outputs are incorrect 
 ---
@@ -166,6 +166,18 @@ $$
 $$
 C_h(r) = \frac{1.0 \times 10^{-9} (1 - \tanh(20(r - 0.1)))}{2}
 $$
+
+| **Component**                    | **Complexity**             | **Explanation**                                                                 |
+|----------------------------------|-----------------------------|----------------------------------------------------------------------------------|
+| **Spatial Derivatives (Matrices)** | \( \mathcal{O}(N^2) \)      | Dense Chebyshev differentiation matrices of size \((N+1) \times (N+1)\)          |
+| **Nonlinear Term Evaluation**     | \( \mathcal{O}(N) \)        | Evaluated pointwise on the collocation grid                                     |
+| **Time Integration (BDF)**        | \( \mathcal{O}(kN^3) \)     | Implicit method requiring Jacobian evaluations and linear solves per step       |
+| **Total Computational Cost**      | \( \mathcal{O}(kN^3) \)     | Dominated by BDF time-stepping of coupled nonlinear PDEs                        |
+| **Memory (Space) Usage**          | \( \mathcal{O}(N^2) \)      | Due to storage of spectral differentiation matrices and intermediate arrays     |
+
+> - \(N\): Number of spatial collocation points  
+> - \(k\): Number of time steps (depends on stiffness and solver tolerance)  
+> - The cost is dominated by the BDF method solving large nonlinear systems at each time step.
 
 These profiles are biologically motivated and consistent with modeling literature. The tanh-based transitions ensure differentiability and numerical stability.
 ### However
